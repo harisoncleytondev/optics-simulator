@@ -32,3 +32,10 @@ export function reflect(d: Vec3, n: Vec3): Vec3 {
   const k = dot(d, n);
   return [d[0] - 2 * k * n[0], d[1] - 2 * k * n[1], d[2] - 2 * k * n[2]];
 }
+
+export function angleDeg(a: Vec3, b: Vec3): number {
+  const denom = length(a) * length(b);
+  if (denom < EPSILON) return 0;
+  const cos = Math.min(1, Math.max(-1, dot(a, b) / denom));
+  return (Math.acos(cos) * 180) / Math.PI;
+}

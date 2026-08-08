@@ -16,6 +16,8 @@ Todo o traçado de raios é implementado **manualmente** com matemática vetoria
 - **Reta normal** (verde, tracejada) no ponto de impacto (alternável).
 - **Ponto focal** (laranja) exibido nos espelhos esféricos.
 - Ajuste do **raio de curvatura** (`R`) dos espelhos esféricos.
+- Os feixes de luz **iluminam de verdade** a cena (point lights ao longo dos raios).
+- **Modal "Explicar reflexão"**: mostra o **cálculo passo a passo** da reflexão (vetores, normal, d·n, r) e uma análise da IA (Groq) da simulação atual.
 - Câmera orbitável (mover, girar e zoom) com mouse.
 - Restrição de dispositivo: só funciona em **tablets e computadores** (mensagem de erro em celulares).
 
@@ -34,15 +36,16 @@ Todo o traçado de raios é implementado **manualmente** com matemática vetoria
 ```
 src/
 ├── app/           # layout, página e ícone (Next.js)
+│   └── api/explain/route.ts   # API da IA (Groq, com streaming)
 ├── components/    # Componentes que apenas renderizam a cena
 │   ├── Scene.tsx          # Composição geral + estado dos controles
 │   ├── LightSource.tsx    # Esfera representando a fonte de luz
-│   ├── Ground.tsx         # Chão (plano + grade de coordenadas)
 │   ├── Mirror.tsx         # Geometria do espelho (plano / esférico)
 │   ├── Ray.tsx            # Raio como cilindro entre dois pontos
 │   ├── NormalLine.tsx     # Reta normal no ponto de impacto
 │   ├── FocusPoint.tsx     # Ponto focal dos espelhos esféricos
 │   ├── ControlsPanel.tsx  # Painel de interface (HTML)
+│   ├── AiExplanationPanel.tsx # Análise da reflexão via Groq
 │   └── DeviceGate.tsx     # Guarda de devices (bloqueia celular)
 ├── engine/         # Matemática e física (vetores + reflexão)
 │   ├── vectors.ts          # Operações vetoriais (dot, add, reflect…)
@@ -75,6 +78,24 @@ npx tsc --noEmit       # TypeScript
 ```
 
 > **Nota:** o aplicativo usa WebGL. Abra em tablets ou computadores; em celulares é exibida uma mensagem de bloqueio.
+
+## IA que explica a reflexão (Groq)
+
+O botão **"Explicar reflexão"** (canto superior direito) abre um modal com duas partes: o **cálculo passo a passo** da reflexão usando os valores reais da simulação (direção incidente `d`, normal `n`, produto escalar `d·n`, vetor refletido `r` e ângulo `θ`) e uma **explicação da IA** (Groq) gerada com os dados do simulado, exibida **em streaming**.
+
+### Configurar a chave
+
+A chamada ao Groq acontece no servidor (`api/explain/route.ts`) — a chave **nunca** vai ao navegador. Crie um arquivo `.env` na raiz:
+
+```
+GROQ_API_KEY=cole_a_sua_chave_aqui
+```
+
+1. Gere uma chave gratuita em [console.groq.com](https://console.groq.com/keys).
+2. Salve no arquivo `.env` (o `.env*` já está no `.gitignore`, portanto não vaza para o git).
+3. Reinicie o `npm run dev` e clique em **"Analisar reflexão"**.
+
+Sem a chave, a build continua funcionando; só o botão de análise retorna erro.
 
 ## Conceitos físicos
 
@@ -179,6 +200,8 @@ O raio refletido é desenhado de `hit` até `hit + r · comprimento`.
 - **Luz X / Y / Z:** move a fonte de luz — o raio se re-aponta automaticamente.
 - **Raio de curvatura (`R`):** visível para espelhos esféricos; muda a profundidade da calota e a posição do foco.
 - **Mostrar reta normal:** alterna a visualização da reta verde no ponto de reflexão.
+- **Reiniciar posição da luz:** volta a fonte ao ponto inicial.
+- **Explicar reflexão:** abre o modal com o cálculo da reflexão e a análise da IA (requer `GROQ_API_KEY`). A resposta chega em streaming e é exibida com formatação Markdown.
 
 ## Licença
 

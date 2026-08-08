@@ -8,13 +8,17 @@ type LightSourceProps = {
 
 export function LightSource({ position }: LightSourceProps) {
   return (
-    <mesh position={position}>
-      <sphereGeometry args={[0.35, 32, 32]} />
-      <meshStandardMaterial
-        color="#ffd54a"
-        emissive="#ffb300"
-        emissiveIntensity={1.4}
-      />
-    </mesh>
+    <group position={position}>
+      <mesh>
+        <sphereGeometry args={[0.35, 32, 32]} />
+        <meshStandardMaterial
+          color="#ffd54a"
+          emissive="#ffb300"
+          emissiveIntensity={2}
+        />
+      </mesh>
+
+      <pointLight color="#ffd54a" intensity={30} distance={20} decay={2} />
+    </group>
   );
 }

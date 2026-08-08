@@ -10,6 +10,7 @@ type CylinderLineProps = {
   radius?: number;
   color?: string;
   opacity?: number;
+  glow?: boolean;
 };
 
 export function CylinderLine({
@@ -18,6 +19,7 @@ export function CylinderLine({
   radius = 0.05,
   color = "#ffffff",
   opacity = 1,
+  glow = false,
 }: CylinderLineProps) {
   const geometry = useMemo(() => {
     const a = new THREE.Vector3(...from);
@@ -38,22 +40,44 @@ export function CylinderLine({
   if (!geometry) return null;
 
   return (
-    <group
-      position={geometry.midpoint}
-      quaternion={geometry.quaternion}
-    >
+    <group position={geometry.midpoint} quaternion={geometry.quaternion}>
       <mesh>
-        <cylinderGeometry
-          args={[radius, radius, geometry.length, 8]}
-        />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.35}
-          transparent
-          opacity={opacity}
-        />
+        <cylinderGeometry args={[radius, radius, geometry.length, 8]} />
+        {glow ? (
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={opacity}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        ) : (
+          <meshStandardMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.35}
+            transparent
+            opacity={opacity}
+          />
+        )}
       </mesh>
+
+      {glow && (
+        <mesh>
+          <cylinderGeometry
+            args={[radius * 2.6, radius * 2.6, geometry.length, 8]}
+          />
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={opacity * 0.22}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
     </group>
   );
 }

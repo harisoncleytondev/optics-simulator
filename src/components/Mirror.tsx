@@ -46,8 +46,10 @@ export function Mirror({ mirror }: MirrorProps) {
           <boxGeometry args={[3.2, 3.2, 0.07]} />
           <meshStandardMaterial
             color="#cfd8e3"
-            metalness={0.95}
-            roughness={0.12}
+            metalness={0.6}
+            roughness={0.25}
+            emissive="#1a2020"
+            emissiveIntensity={0.35}
           />
         </mesh>
       ) : (
@@ -57,8 +59,10 @@ export function Mirror({ mirror }: MirrorProps) {
         >
           <meshStandardMaterial
             color="#9fd8c8"
-            metalness={0.9}
-            roughness={0.15}
+            metalness={0.55}
+            roughness={0.3}
+            emissive="#101a26"
+            emissiveIntensity={0.5}
             side={THREE.DoubleSide}
           />
         </mesh>

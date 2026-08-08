@@ -3,15 +3,15 @@
 import { useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Ground } from "./Ground";
 import { LightSource } from "./LightSource";
 import { Ray } from "./Ray";
 import { Mirror } from "./Mirror";
 import { NormalLine } from "./NormalLine";
 import { FocusPoint } from "./FocusPoint";
 import { ControlsPanel } from "./ControlsPanel";
-import { resolveMirror, MIRROR_DISK_RADIUS } from "@/engine/mirror";
-import { add, scale } from "@/engine/vectors";
+import { AiExplanationPanel } from "./AiExplanationPanel";
+import { resolveMirror, getMirrorFocus, MIRROR_DISK_RADIUS } from "@/engine/mirror";
+import { add, angleDeg, scale } from "@/engine/vectors";
 import type { MirrorKind, MirrorModel, Vec3 } from "@/types/physics";
 
 const RAY_LENGTH = 6;
@@ -43,6 +43,13 @@ export function Scene() {
       ? add(result.hit, scale(result.reflected, RAY_LENGTH))
       : null;
 
+  const focus = useMemo(() => getMirrorFocus(mirror), [mirror]);
+
+  const angleOfIncidence =
+    result.hit && result.normal
+      ? angleDeg(result.incident, result.normal)
+      : null;
+
   return (
     <div className="relative h-screen w-full">
       <ControlsPanel
@@ -56,6 +63,19 @@ export function Scene() {
         onShowNormal={setShowNormal}
       />
 
+      <AiExplanationPanel
+        kind={kind}
+        radius={radius}
+        lightPos={lightPos}
+        hit={result.hit}
+        normal={result.normal}
+        incident={result.incident}
+        reflected={result.reflected}
+        reflectEnd={reflectedEnd}
+        angle={angleOfIncidence}
+        focus={focus}
+      />
+
       <a
         href="https://harisoncleyton.tech"
         target="_blank"
@@ -66,11 +86,8 @@ export function Scene() {
       </a>
 
       <Canvas camera={{ position: [7, 5, 10], fov: 50 }}>
-        <color attach="background" args={["#0d1526"]} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[6, 10, 8]} intensity={1.2} />
-
-        <Ground />
+        <color attach="background" args={["#04060c"]} />
+        <ambientLight intensity={0.08} />
 
         <Mirror mirror={mirror} />
 
